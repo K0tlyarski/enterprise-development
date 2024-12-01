@@ -21,4 +21,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+
+	<ItemGroup>
+		<ProjectReference Include="..\Policlinic\Policlinic.csproj" />
+	</ItemGroup>
+	
 </Project>
