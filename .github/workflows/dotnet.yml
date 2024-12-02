@@ -31,11 +31,17 @@ jobs:
         dotnet restore project/Policlinic/Policlinic/Policlinic.csproj
         dotnet restore project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
 
-
     - name: Build
       run: |
         dotnet build project/Policlinic/Policlinic/Policlinic.csproj --no-restore
         dotnet build project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-restore
 
     - name: Test
-      run: project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-build --verbosity normal
+      run: dotnet test project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-build --verbosity normal
+
+
+
+
+
+     #project/Policlinic/Policlinic/Policlinic.csproj
+      #//project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
