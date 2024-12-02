@@ -18,12 +18,8 @@ jobs:
       run: |
         echo "Current directory:"
         pwd
-        echo "Listing files in current directory:"
-        ls -la
-        echo "Listing files in project/Policlinic:"
-        ls -la project/Policlinic
-        echo "Listing files in project/Policlinic/PoliclinicTests:"
-        ls -la project/Policlinic/PoliclinicTests
+        echo "Listing all files recursively:"
+        ls -R
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -32,13 +28,13 @@ jobs:
 
     - name: Restore dependencies
       run: |
-        dotnet restore project/Policlinic/Policlinic/Policlinic.csproj
-        dotnet restore project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
+        dotnet restore project/Policlinic/Policlinic/Policlinic/Policlinic.csproj
+        dotnet restore project/Policlinic/Policlinic/PoliclinicTests/PoliclinicTests.csproj
 
     - name: Build
       run: |
-        dotnet build project/Policlinic/Policlinic/Policlinic.csproj --no-restore
-        dotnet build project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-restore
+        dotnet build project/Policlinic/Policlinic/Policlinic/Policlinic.csproj --no-restore
+        dotnet build project/Policlinic/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-restore
 
     - name: Test
-      run: dotnet test project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-build --verbosity normal
+      run: dotnet test project/Policlinic/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-build --verbosity normal
