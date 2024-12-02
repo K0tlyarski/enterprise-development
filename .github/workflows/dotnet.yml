@@ -14,18 +14,28 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: List directories for debugging
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "Listing all files recursively:"
+        ls -R
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x 
 
     - name: Restore dependencies
-      run: dotnet restore PoliclinicTests/PoliclinicTests.csproj
+      run: |
+        dotnet restore project/Policlinic/Policlinic/Policlinic.csproj
+        dotnet restore project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
+
 
     - name: Build
       run: |
-        dotnet build Policlinic/Policlinic.csproj --no-restore
-        dotnet build PoliclinicTests/PoliclinicTests.csproj --no-restore
+        dotnet build project/Policlinic/Policlinic/Policlinic.csproj --no-restore
+        dotnet build project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-restore
 
     - name: Test
-      run: dotnet test PoliclinicTests/PoliclinicTests.csproj --no-build --verbosity normal
+      run: project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-build --verbosity normal
