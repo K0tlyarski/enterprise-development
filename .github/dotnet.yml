@@ -1,0 +1,53 @@
+name: build and test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: List directories for debugging
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "Listing all files recursively:"
+        ls -R
+
+    - name: Debug permissions
+      run: ls -l project/Policlinic/PoliclinicTests/
+
+    - name: Fix permissions
+      run: chmod -R 644 project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x 
+
+    - name: Restore dependencies
+      run: |
+        dotnet restore project/Policlinic/Policlinic/Policlinic.csproj
+        dotnet restore project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
+
+    - name: Build
+      run: |
+        dotnet build project/Policlinic/Policlinic/Policlinic.csproj --no-restore
+        dotnet build project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-restore
+
+    - name: Test
+      run: dotnet test project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-build --verbosity normal
+
+
+
+
+
+     #project/Policlinic/Policlinic/Policlinic.csproj
+      #//project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
