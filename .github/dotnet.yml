@@ -20,7 +20,9 @@ jobs:
         dotnet-version: 8.0.x 
 
     - name: Restore dependencies
-      run: dotnet restore project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
+      run: |
+        dotnet restore project/Policlinic/Policlinic/Policlinic.csproj
+        dotnet restore project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
 
     - name: Build
       run: |
