@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Policlinic
 {
@@ -69,30 +68,5 @@ namespace Policlinic
             Passport = passport;
             Receptions = receptions;
         }
-
-        /// <summary>
-        /// Overridden Equals method for object comparison
-        /// </summary>
-        /// <param name="obj">Object to compare</param>
-        /// <returns>True if objects are equal, otherwise false</returns>
-        public override bool Equals(object? obj)
-        {
-            if (obj is not Doctor other)
-                return false;
-
-            return Id == other.Id &&
-                   Passport == other.Passport &&
-                   Fio == other.Fio &&
-                   BirthDate == other.BirthDate &&
-                   WorkExperience == other.WorkExperience &&
-                   SpecializationId == other.SpecializationId &&
-                   Receptions.SequenceEqual(other.Receptions); // Compare lists by content
-        }
-
-        /// <summary>
-        /// Overridden GetHashCode method to generate a unique hash code
-        /// </summary>
-        /// <returns>Generated hash code</returns>
-
     }
 }
