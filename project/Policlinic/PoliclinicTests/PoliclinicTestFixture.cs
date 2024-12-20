@@ -1,5 +1,5 @@
 ﻿namespace PoliclinicTests;
-using Policlinic;
+using Policlinic.Domain;
 using System;
 using System.Collections.Generic;
 

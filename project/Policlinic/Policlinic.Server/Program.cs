@@ -1,35 +1,50 @@
-using System.Text.Json.Serialization;
+using AutoMapper;
+using Policlinic.Domain;
+using Policlinic.Domain.Repositories;
+using Policlinic.Server;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
-var builder = WebApplication.CreateSlimBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.ConfigureHttpJsonOptions(options =>
+// Configure AutoMapper
+var mapperConfig = new MapperConfiguration(config => config.AddProfile(new Mapping()));
+var mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
+
+// Register repositories
+builder.Services.AddScoped<IRepository<Patient, int>, PatientRepository>();
+builder.Services.AddScoped<IRepository<Doctor, int>, DoctorRepository>();
+builder.Services.AddScoped<IRepository<Reception, int>, ReceptionRepository>();
+
+// Configure DbContext
+builder.Services.AddDbContext<PoliclinicDbContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("MySql")!, ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MySql")!)));
+
+// Add controllers and Swagger
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
 {
-    options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
+    var xmlFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFileName));
 });
 
 var app = builder.Build();
 
-var sampleTodos = new Todo[] {
-    new(1, "Walk the dog"),
-    new(2, "Do the dishes", DateOnly.FromDateTime(DateTime.Now)),
-    new(3, "Do the laundry", DateOnly.FromDateTime(DateTime.Now.AddDays(1))),
-    new(4, "Clean the bathroom"),
-    new(5, "Clean the car", DateOnly.FromDateTime(DateTime.Now.AddDays(2)))
-};
+// Configure middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-var todosApi = app.MapGroup("/todos");
-todosApi.MapGet("/", () => sampleTodos);
-todosApi.MapGet("/{id}", (int id) =>
-    sampleTodos.FirstOrDefault(a => a.Id == id) is { } todo
-        ? Results.Ok(todo)
-        : Results.NotFound());
+app.UseHttpsRedirection();
+
+app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:8080"));
+
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
-
-public record Todo(int Id, string? Title, DateOnly? DueBy = null, bool IsComplete = false);
-
-[JsonSerializable(typeof(Todo[]))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext
-{
-
-}

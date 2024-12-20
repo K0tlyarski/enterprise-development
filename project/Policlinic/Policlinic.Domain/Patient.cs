@@ -2,47 +2,31 @@
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
-namespace Policlinic
+namespace Policlinic.Domain
 {
-    /// <summary>
-    /// Patient describes a patient
-    /// </summary>
+
     public class Patient
     {
-        /// <summary>
-        /// Id is an int typed value of the patient's id
-        /// </summary>
+       
         [Key]
         public int Id { get; set; }
 
-        /// <summary>
-        /// Passport is a long int typed value of the passport series and number
-        /// </summary>
+ 
         public long Passport { get; set; }
 
-        /// <summary>
-        /// Fio is a string typed value for storing the name, surname and patronymic of the patient
-        /// </summary>
+     
         public string Fio { get; set; } = string.Empty;
 
-        /// <summary>
-        /// BirthDate is a datetime value of a doctor's birthday
-        /// </summary>
+       
         public DateTime BirthDate { get; set; } = DateTime.MinValue;
 
-        /// <summary>
-        /// Address is a string typed value of the patient's address
-        /// </summary>
+     
         public string Address { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Receptions is a list of receptions
-        /// </summary>
+     
         public List<Reception> Receptions { get; set; } = new List<Reception>();
 
-        /// <summary>
-        /// Default Constructor
-        /// </summary>
+
         public Patient() { }
 
         /// <summary>
