@@ -28,12 +28,12 @@ jobs:
 
     - name: Restore dependencies
       run: |
-        dotnet restore project/Policlinic/Policlinic/Policlinic.csproj
-        dotnet restore project/Policlinic/PoliclinicTests/PoliclinicTests.csproj
+        dotnet restore project/Policlinic/Policlinic.Domain/Policlinic.Domain.csproj
+        dotnet restore project/Policlinic/Policlinic.Tests/PoliclinicTests.csproj
 
     - name: Build
       run: |
-        dotnet build project/Policlinic/Policlinic/Policlinic.csproj --no-restore
+        dotnet build project/Policlinic/Policlinic.Domain/Policlinic.Domain.csproj
         dotnet build project/Policlinic/PoliclinicTests/PoliclinicTests.csproj --no-restore
 
     - name: Test
