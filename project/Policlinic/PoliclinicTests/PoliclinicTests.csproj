@@ -23,7 +23,7 @@
 
 
 	<ItemGroup>
-		<ProjectReference Include="..\Policlinic\Policlinic.Domain.csproj" />
+		<ProjectReference Include="..\Policlinic.Domain\Policlinic.Domain.csproj" />
 	</ItemGroup>
 	
 </Project>
