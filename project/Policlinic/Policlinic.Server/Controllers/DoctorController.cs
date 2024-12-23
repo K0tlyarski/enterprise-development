@@ -31,7 +31,7 @@ public class DoctorController(IRepository<Doctor, int> repository, IMapper mappe
     public async Task<ActionResult<DoctorGetDto>> Get(int id)
     {
         var doctor = await repository.Get(id);
-        if (doctor == null) return NotFound();
+        if (doctor == null) return NoContent();
 
         var dto = mapper.Map<DoctorGetDto>(doctor);
         return Ok(dto);
@@ -72,7 +72,7 @@ public class DoctorController(IRepository<Doctor, int> repository, IMapper mappe
         if (value.BirthDate < minDate || value.BirthDate > maxDate)
             return BadRequest("Invalid birth date");
 
-        return await repository.Put(doctor, id) ? Ok() : NotFound();
+        return await repository.Put(doctor, id) ? Ok() : NoContent();
     }
 
     /// <summary>
@@ -83,6 +83,7 @@ public class DoctorController(IRepository<Doctor, int> repository, IMapper mappe
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        return await repository.Delete(id) ? Ok() : NotFound();
+        if (await repository.Delete(id)) return NoContent();
+        return NoContent();
     }
 }

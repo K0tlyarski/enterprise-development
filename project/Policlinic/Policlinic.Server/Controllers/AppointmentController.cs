@@ -31,7 +31,7 @@ public class AppointmentController(IRepository<Reception, int> repositoryAppoint
     public async Task<ActionResult<ReceptionDto>> Get(int id)
     {
         var reception = await repositoryAppointment.Get(id);
-        if (reception == null) return NotFound();
+        if (reception == null) return NoContent();
 
         var dto = mapper.Map<ReceptionDto>(reception);
         return Ok(dto);
@@ -46,10 +46,10 @@ public class AppointmentController(IRepository<Reception, int> repositoryAppoint
     public async Task<IActionResult> Post([FromBody] ReceptionDto value)
     {
         var patient = await repositoryPatient.Get(value.PatientId);
-        if (patient == null) return NotFound("Patient not found");
+        if (patient == null) return NoContent();
 
         var doctor = await repositoryDoctor.Get(value.DoctorId);
-        if (doctor == null) return NotFound("Doctor not found");
+        if (doctor == null) return NoContent();
 
         var reception = mapper.Map<Reception>(value);
         reception.PatientId = value.PatientId;
@@ -71,10 +71,10 @@ public class AppointmentController(IRepository<Reception, int> repositoryAppoint
     public async Task<IActionResult> Put(int id, [FromBody] ReceptionDto value)
     {
         var patient = await repositoryPatient.Get(value.PatientId);
-        if (patient == null) return NotFound("Patient not found");
+        if (patient == null) return NoContent();
 
         var doctor = await repositoryDoctor.Get(value.DoctorId);
-        if (doctor == null) return NotFound("Doctor not found");
+        if (doctor == null) return NoContent();
 
         var reception = mapper.Map<Reception>(value);
         reception.PatientId = value.PatientId;
@@ -82,7 +82,7 @@ public class AppointmentController(IRepository<Reception, int> repositoryAppoint
         reception.DateAndTime = value.DateAndTime;
         reception.Status = value.Status;
 
-        return await repositoryAppointment.Put(reception, id) ? Ok() : NotFound();
+        return await repositoryAppointment.Put(reception, id) ? Ok() : NoContent();
     }
 
     /// <summary>
@@ -93,6 +93,7 @@ public class AppointmentController(IRepository<Reception, int> repositoryAppoint
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        return await repositoryAppointment.Delete(id) ? Ok() : NotFound();
+        if (await repositoryAppointment.Delete(id)) return NoContent();
+        return NoContent();
     }
 }

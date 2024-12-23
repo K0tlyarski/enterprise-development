@@ -38,7 +38,7 @@ public class PatientController(IRepository<Patient, int> repository, IMapper map
     public async Task<ActionResult<PatientGetDto>> Get(int id)
     {
         var patient = await repository.Get(id);
-        if (patient == null) return NotFound();
+        if (patient == null) return NoContent();
 
         var dto = mapper.Map<PatientGetDto>(patient);
         return Ok(dto);
@@ -79,7 +79,7 @@ public class PatientController(IRepository<Patient, int> repository, IMapper map
             return BadRequest("Invalid birth date");
 
         var patient = mapper.Map<Patient>(value);
-        return await repository.Put(patient, id) ? Ok() : NotFound();
+        return await repository.Put(patient, id) ? Ok() : NoContent();
     }
 
     /// <summary>
@@ -87,10 +87,11 @@ public class PatientController(IRepository<Patient, int> repository, IMapper map
     /// </summary>
     /// <param name="id">идентификатор пациента</param>
     /// <returns></returns>
-    /// <response code="200">Запрос выполнен успешно</response>
+    /// <response code="204">Успешное удаление или запись не найдена</response>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        return await repository.Delete(id) ? Ok() : NotFound();
+        if (await repository.Delete(id)) return NoContent();
+        return NoContent();
     }
 }
