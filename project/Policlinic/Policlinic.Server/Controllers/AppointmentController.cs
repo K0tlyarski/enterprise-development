@@ -93,7 +93,8 @@ public class AppointmentController(IRepository<Reception, int> repositoryAppoint
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        if (await repositoryAppointment.Delete(id)) return NoContent();
+        var deleted = await repositoryAppointment.Delete(id);
+        if (!deleted) return NotFound();
         return NoContent();
     }
 }

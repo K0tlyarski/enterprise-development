@@ -34,6 +34,7 @@ public class PatientController(IRepository<Patient, int> repository, IMapper map
     /// <param name="id">Идентификатор пациента</param>
     /// <returns><see cref="PatientGetDto"/></returns>
     /// <response code="200">Запрос выполнен успешно</response>
+    /// <response code="204">Пациент с указанным ID не найден</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<PatientGetDto>> Get(int id)
     {
@@ -50,6 +51,7 @@ public class PatientController(IRepository<Patient, int> repository, IMapper map
     /// <param name="value">объект <see cref="PatientPostDto"/></param>
     /// <returns></returns>
     /// <response code="200">Запрос выполнен успешно</response>
+    /// <response code="400">Дата рождения недействительна</response>
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] PatientPostDto value)
     {
@@ -70,6 +72,8 @@ public class PatientController(IRepository<Patient, int> repository, IMapper map
     /// <param name="value">объект <see cref="PatientPostDto"/></param>
     /// <returns></returns>
     /// <response code="200">Запрос выполнен успешно</response>
+    /// <response code="204">Пациент с указанным ID не найден</response>
+    /// <response code="400">Дата рождения недействительна</response>
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] PatientPostDto value)
     {
@@ -87,11 +91,13 @@ public class PatientController(IRepository<Patient, int> repository, IMapper map
     /// </summary>
     /// <param name="id">идентификатор пациента</param>
     /// <returns></returns>
-    /// <response code="204">Успешное удаление или запись не найдена</response>
+    /// <response code="204">Успешное удаление</response>
+    /// <response code="404">Пациент с указанным ID не найден</response>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        if (await repository.Delete(id)) return NoContent();
+        var deleted = await repository.Delete(id);
+        if (!deleted) return NotFound();
         return NoContent();
     }
 }

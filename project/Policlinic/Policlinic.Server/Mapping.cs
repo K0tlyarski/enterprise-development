@@ -12,15 +12,20 @@ public class Mapping : Profile
     /// </summary>
     public Mapping()
     {
-        CreateMap<Doctor, DoctorGetDto>();
-        CreateMap<Doctor, DoctorPostDto>();
+        // Маппинг доменной модели Doctor на DTO для получения данных
+        CreateMap<Doctor, DoctorGetDto>().ReverseMap(); 
+
+        // Маппинг для создания нового доктора
         CreateMap<DoctorPostDto, Doctor>();
-        CreateMap<Patient, PatientGetDto>();
-        CreateMap<Patient, PatientPostDto>();
+
+        // Аналогично для Patient
+        CreateMap<Patient, PatientGetDto>().ReverseMap();
         CreateMap<PatientPostDto, Patient>();
-        CreateMap<Reception, ReceptionDto>();
-        CreateMap<ReceptionDto, Reception>();
-        CreateMap<Specialization, SpecializationDto>();
-        CreateMap<SpecializationDto, Specialization>();
+
+        // Маппинг для приемов
+        CreateMap<Reception, ReceptionDto>().ReverseMap();
+
+        // Маппинг для специализаций
+        CreateMap<Specialization, SpecializationDto>().ReverseMap();
     }
 }

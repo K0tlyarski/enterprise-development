@@ -1,0 +1,190 @@
+﻿@page "/appointments"
+@inject HttpClient Http
+@inject ServerApi Api
+
+<PageTitle>Appointments</PageTitle>
+
+<h1>Appointment Management</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Date and Time</th>
+            <th>Status</th>
+            <th>Doctor ID</th>
+            <th>Patient ID</th>
+            <th>Conclusion</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (_appointments == null || !_appointments.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center">No appointments found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var appointment in _appointments)
+            {
+                <tr>
+                    <td>@appointment.Id</td>
+                    <td>@appointment.DateAndTime.ToString("g")</td>
+                    <td>@appointment.Status</td>
+                    <td>@appointment.DoctorId</td>
+                    <td>@appointment.PatientId</td>
+                    <td>@appointment.Conclusion</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ShowUpdForm(appointment.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteAppointment(appointment.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<h3>@(flagAdd ? "Add New Appointment" : "Edit Appointment")</h3>
+
+<EditForm Model="@currentAppointment" OnValidSubmit="HandleFormSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="dateTime" class="form-label">Date and Time</label>
+        <InputDate id="dateTime" class="form-control" @bind-Value="currentAppointment.DateAndTime" />
+    </div>
+    <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <InputText id="status" class="form-control" @bind-Value="currentAppointment.Status" />
+    </div>
+    <div class="mb-3">
+        <label for="doctorId" class="form-label">Doctor ID</label>
+        <InputNumber id="doctorId" class="form-control" @bind-Value="currentAppointment.DoctorId" />
+    </div>
+    <div class="mb-3">
+        <label for="patientId" class="form-label">Patient ID</label>
+        <InputNumber id="patientId" class="form-control" @bind-Value="currentAppointment.PatientId" />
+    </div>
+    <div class="mb-3">
+        <label for="conclusion" class="form-label">Conclusion</label>
+        <InputText id="conclusion" class="form-control" @bind-Value="currentAppointment.Conclusion" />
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="ClearForm">Cancel</button>
+</EditForm>
+
+@code {
+    private List<ReceptionDto> _appointments = new();
+    private ReceptionDto currentAppointment = new()
+        {
+            Id = 0,
+            DateAndTime = DateTime.Now,
+            Status = string.Empty,
+            DoctorId = 0,
+            PatientId = 0,
+            Conclusion = string.Empty
+        };
+    private bool flagAdd = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAppointments();
+    }
+
+    private async Task LoadAppointments()
+    {
+        try
+        {
+            _appointments = (await Api.AppointmentAllAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading appointments: {ex.Message}");
+        }
+    }
+
+    private async Task AddNewAppointment()
+    {
+        try
+        {
+            await Api.AppointmentPOSTAsync(currentAppointment);
+            ClearForm();
+            await LoadAppointments();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error adding appointment: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteAppointment(int appointmentId)
+    {
+        try
+        {
+            await Api.AppointmentDELETEAsync(appointmentId);
+            await LoadAppointments();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting appointment: {ex.Message}");
+        }
+    }
+
+    private async Task UpdateAppointment()
+    {
+        try
+        {
+            await Api.AppointmentPUTAsync(currentAppointment.Id, currentAppointment);
+            ClearForm();
+            await LoadAppointments();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error updating appointment: {ex.Message}");
+        }
+    }
+
+    private async Task ShowUpdForm(int appointmentId)
+    {
+        flagAdd = false;
+        try
+        {
+            var response = await Api.AppointmentGETAsync(appointmentId);
+            if (response != null)
+            {
+                currentAppointment = response;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading appointment details: {ex.Message}");
+        }
+    }
+
+    private void ClearForm()
+    {
+        flagAdd = true;
+        currentAppointment = new ReceptionDto
+            {
+                Id = 0,
+                DateAndTime = DateTime.Now,
+                Status = string.Empty,
+                DoctorId = 0,
+                PatientId = 0,
+                Conclusion = string.Empty
+            };
+    }
+
+    private async Task HandleFormSubmit()
+    {
+        if (flagAdd)
+        {
+            await AddNewAppointment();
+        }
+        else
+        {
+            await UpdateAppointment();
+        }
+    }
+}

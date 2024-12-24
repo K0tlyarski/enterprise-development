@@ -1,0 +1,234 @@
+﻿@page "/requests"
+@using MudBlazor
+@inject HttpClient Http
+
+<h2>Requests</h2>
+
+<MudExpansionPanels MultiExpansion="true">
+
+    <!-- Query 1: Доктора со стажем работы более 10 лет -->
+    <MudExpansionPanel Text="Query 1: Doctors (experience > 10 years)">
+        <div class="button-container">
+            <MudButton Color="Color.Primary" OnClick="@(() => ClickHandler(1))">Get result</MudButton>
+            <MudButton Color="Color.Error" OnClick="@(() => ClearTask(1))">Clear</MudButton>
+        </div>
+        <div class="table-container">
+            @if (experienceDoctors != null && experienceDoctors.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Passport</th>
+                            <th>FIO</th>
+                            <th>BirthDate</th>
+                            <th>WorkExperience</th>
+                            <th>SpecializationId</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in experienceDoctors)
+                        {
+                            <tr>
+                                <td>@doc.Id</td>
+                                <td>@doc.Passport</td>
+                                <td>@doc.Fio</td>
+                                <td>@doc.BirthDate</td>
+                                <td>@doc.WorkExperience</td>
+                                <td>@doc.SpecializationId</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="no-data">No data available.</p>
+            }
+        </div>
+    </MudExpansionPanel>
+
+    <!-- Query 2: Пациенты определённого доктора (по ID) -->
+    <MudExpansionPanel Text="Query 2: Patients of doctor (by ID)">
+        <div class="input-container mb-3">
+            <MudTextField Label="Doctor ID" @bind-Value="_doctorId" />
+        </div>
+        <div class="button-container">
+            <MudButton Color="Color.Primary" OnClick="@(() => ClickHandler(2))">Get result</MudButton>
+            <MudButton Color="Color.Error" OnClick="@(() => ClearTask(2))">Clear</MudButton>
+        </div>
+        <div class="table-container">
+            @if (patientsOfDoctor != null && patientsOfDoctor.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Passport</th>
+                            <th>FIO</th>
+                            <th>BirthDate</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pat in patientsOfDoctor)
+                        {
+                            <tr>
+                                <td>@pat.Id</td>
+                                <td>@pat.Passport</td>
+                                <td>@pat.Fio</td>
+                                <td>@pat.BirthDate</td>
+                                <td>@pat.Address</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="no-data">No data available.</p>
+            }
+        </div>
+    </MudExpansionPanel>
+
+    <!-- Query 3: "Здоровые" пациенты (Conclusion == "Healthy") -->
+    <MudExpansionPanel Text="Query 3: Healthy patients">
+        <div class="button-container">
+            <MudButton Color="Color.Primary" OnClick="@(() => ClickHandler(3))">Get result</MudButton>
+            <MudButton Color="Color.Error" OnClick="@(() => ClearTask(3))">Clear</MudButton>
+        </div>
+        <div class="table-container">
+            @if (healthyPatients != null && healthyPatients.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Passport</th>
+                            <th>FIO</th>
+                            <th>BirthDate</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pat in healthyPatients)
+                        {
+                            <tr>
+                                <td>@pat.Id</td>
+                                <td>@pat.Passport</td>
+                                <td>@pat.Fio</td>
+                                <td>@pat.BirthDate</td>
+                                <td>@pat.Address</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="no-data">No data available.</p>
+            }
+        </div>
+    </MudExpansionPanel>
+
+    <!-- Query 4 (удалён) -->
+    <!-- Query 5 (удалён) -->
+
+    <!-- Query 6: Пациенты, записанные к нескольким врачам, старше 30 лет -->
+    <MudExpansionPanel Text="Query 6: Patients with multiple appointments (age > 30)">
+        <div class="button-container">
+            <MudButton Color="Color.Primary" OnClick="@(() => ClickHandler(6))">Get result</MudButton>
+            <MudButton Color="Color.Error" OnClick="@(() => ClearTask(6))">Clear</MudButton>
+        </div>
+        <div class="table-container">
+            @if (multiDoctorPatients != null && multiDoctorPatients.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Passport</th>
+                            <th>FIO</th>
+                            <th>BirthDate</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pat in multiDoctorPatients)
+                        {
+                            <tr>
+                                <td>@pat.Id</td>
+                                <td>@pat.Passport</td>
+                                <td>@pat.Fio</td>
+                                <td>@pat.BirthDate</td>
+                                <td>@pat.Address</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="no-data">No data available.</p>
+            }
+        </div>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+@code {
+    // Данные для запросов:
+    private List<DoctorGetDto>? experienceDoctors;
+    private List<PatientGetDto>? patientsOfDoctor;
+    private List<PatientGetDto>? healthyPatients;
+    private List<PatientGetDto>? multiDoctorPatients;
+
+    // Поле ввода для Query #2 (ID доктора)
+    private int _doctorId;
+
+    private async Task ClickHandler(int queryId)
+    {
+        try
+        {
+            switch (queryId)
+            {
+                // Query 1: Доктора со стажем > 10 лет
+                case 1:
+                    experienceDoctors = await Http.GetFromJsonAsync<List<DoctorGetDto>>("api/Requests/experience-doctors");
+                    break;
+
+                // Query 2: Пациенты определённого доктора
+                case 2:
+                    if (_doctorId > 0)
+                    {
+                        patientsOfDoctor = await Http.GetFromJsonAsync<List<PatientGetDto>>($"api/Requests/patients-of-doctor/{_doctorId}");
+                    }
+                    break;
+
+                // Query 3: "Здоровые" пациенты
+                case 3:
+                    healthyPatients = await Http.GetFromJsonAsync<List<PatientGetDto>>("api/Requests/healthy-patients");
+                    break;
+
+                // Query 6: Пациенты, записанные к нескольким врачам, старше 30 лет
+                case 6:
+                    multiDoctorPatients = await Http.GetFromJsonAsync<List<PatientGetDto>>("api/Requests/patients-with-several-appointment");
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data (Query {queryId}): {ex.Message}");
+        }
+    }
+
+    private void ClearTask(int queryId)
+    {
+        switch (queryId)
+        {
+            case 1: experienceDoctors = null; break;
+            case 2: patientsOfDoctor = null; break;
+            case 3: healthyPatients = null; break;
+            case 6: multiDoctorPatients = null; break;
+        }
+    }
+}

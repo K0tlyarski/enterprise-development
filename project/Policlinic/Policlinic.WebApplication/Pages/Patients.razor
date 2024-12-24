@@ -1,0 +1,193 @@
+﻿@page "/patients"
+@inject HttpClient Http
+@inject ServerApi Api
+
+<PageTitle>Patients</PageTitle>
+
+<h1>Patient Management</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Passport</th>
+            <th>Birth Date</th>
+            <th>Address</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (_patients == null || !_patients.Any())
+        {
+            <tr>
+                <td colspan="6" class="text-center">No patients found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var patient in _patients)
+            {
+                <tr>
+                    <td>@patient.Id</td>
+                    <td>@patient.Fio</td>
+                    <td>@patient.Passport</td>
+                    <td>@patient.BirthDate</td>
+                    <td>@patient.Address</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ShowUpdForm(patient.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeletePatient(patient.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<h3>@(flagAdd ? "Add New Patient" : "Edit Patient")</h3>
+
+<EditForm Model="@currentPatient" OnValidSubmit="HandleFormSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="fio" class="form-label">Full Name</label>
+        <InputText id="fio" class="form-control" @bind-Value="currentPatient.Fio" />
+    </div>
+    <div class="mb-3">
+        <label for="passport" class="form-label">Passport</label>
+        <InputNumber id="passport" class="form-control" @bind-Value="currentPatient.Passport" />
+    </div>
+    <div class="mb-3">
+        <label for="birthDate" class="form-label">Birth Date</label>
+        <InputDate id="birthDate" class="form-control" @bind-Value="currentPatient.BirthDate" />
+    </div>
+    <div class="mb-3">
+        <label for="address" class="form-label">Address</label>
+        <InputText id="address" class="form-control" @bind-Value="currentPatient.Address" />
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="ClearForm">Cancel</button>
+</EditForm>
+
+@code {
+    private List<PatientGetDto> _patients = new();
+    private PatientGetDto currentPatient = new()
+        {
+            Id = 0,
+            Fio = string.Empty,
+            Passport = 0,
+            BirthDate = new DateTime(2000, 1, 1), // Безопасная дата
+            Address = string.Empty
+        };
+    private bool flagAdd = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPatients();
+    }
+
+    private async Task LoadPatients()
+    {
+        try
+        {
+            _patients = (await Api.PatientAllAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading patients: {ex.Message}");
+        }
+    }
+
+    private async Task AddNewPatient()
+    {
+        try
+        {
+            await Api.PatientPOSTAsync(new PatientPostDto
+                {
+                    Fio = currentPatient.Fio,
+                    Passport = currentPatient.Passport,
+                    BirthDate = currentPatient.BirthDate,
+                    Address = currentPatient.Address
+                });
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error adding patient: {ex.Message}");
+        }
+    }
+
+    private async Task DeletePatient(int patientId)
+    {
+        try
+        {
+            await Api.PatientDELETEAsync(patientId);
+            await LoadPatients();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting patient: {ex.Message}");
+        }
+    }
+
+    private async Task UpdatePatient()
+    {
+        try
+        {
+            await Api.PatientPUTAsync(currentPatient.Id, new PatientPostDto
+                {
+                    Fio = currentPatient.Fio,
+                    Passport = currentPatient.Passport,
+                    BirthDate = currentPatient.BirthDate,
+                    Address = currentPatient.Address
+                });
+
+            ClearForm();
+            await LoadPatients();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error updating patient: {ex.Message}");
+        }
+    }
+
+    private async Task ShowUpdForm(int patientId)
+    {
+        flagAdd = false;
+        try
+        {
+            var response = await Api.PatientGETAsync(patientId);
+            if (response != null)
+            {
+                currentPatient = response;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading patient details: {ex.Message}");
+        }
+    }
+
+    private void ClearForm()
+    {
+        flagAdd = true;
+        currentPatient = new PatientGetDto
+            {
+                Id = 0,
+                Fio = string.Empty,
+                Passport = 0,
+                BirthDate = new DateTime(2000, 1, 1),
+                Address = string.Empty
+            };
+    }
+
+    private async Task HandleFormSubmit()
+    {
+        if (flagAdd)
+        {
+            await AddNewPatient();
+        }
+        else
+        {
+            await UpdatePatient();
+        }
+    }
+}

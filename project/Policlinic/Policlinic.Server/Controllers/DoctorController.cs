@@ -83,7 +83,8 @@ public class DoctorController(IRepository<Doctor, int> repository, IMapper mappe
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        if (await repository.Delete(id)) return NoContent();
+        var deleted = await repository.Delete(id);
+        if (!deleted) return NotFound();
         return NoContent();
     }
 }

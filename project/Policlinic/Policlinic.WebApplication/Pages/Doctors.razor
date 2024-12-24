@@ -1,0 +1,188 @@
+﻿@page "/"
+@inject HttpClient Http
+@inject ServerApi Api
+
+<PageTitle>Doctors</PageTitle>
+
+<h1>Doctor Management</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Passport</th>
+            <th>Birth Date</th>
+            <th>Work Experience</th>
+            <th>Specialization</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (_doctors == null || !_doctors.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center">No doctors found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var doctor in _doctors)
+            {
+                <tr>
+                    <td>@doctor.Id</td>
+                    <td>@doctor.Fio</td>
+                    <td>@doctor.Passport</td>
+                    <td>@doctor.BirthDate</td>
+                    <td>@doctor.WorkExperience years</td>
+                    <td>@doctor.SpecializationId</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ShowUpdForm(doctor.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteDoctor(doctor.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<h3>@(flagAdd ? "Add New Doctor" : "Edit Doctor")</h3>
+
+<EditForm Model="@currentDoctor" OnValidSubmit="HandleFormSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="fio" class="form-label">Full Name</label>
+        <InputText id="fio" class="form-control" @bind-Value="currentDoctor.Fio" />
+    </div>
+    <div class="mb-3">
+        <label for="passport" class="form-label">Passport</label>
+        <InputNumber id="passport" class="form-control" @bind-Value="currentDoctor.Passport" />
+    </div>
+   
+    <div class="mb-3">
+        <label for="workExperience" class="form-label">Work Experience (years)</label>
+        <InputNumber id="workExperience" class="form-control" @bind-Value="currentDoctor.WorkExperience" />
+    </div>
+    <div class="mb-3">
+        <label for="specializationId" class="form-label">Specialization ID</label>
+        <InputNumber id="specializationId" class="form-control" @bind-Value="currentDoctor.SpecializationId" />
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="ClearForm">Cancel</button>
+</EditForm>
+
+@code {
+    private List<DoctorGetDto> _doctors = new();
+    private DoctorGetDto currentDoctor = new()
+        {
+            Id = 0,
+            Fio = string.Empty,
+            Passport = 0,
+            BirthDate = new DateTime(2000, 1, 1),
+            WorkExperience = 0,
+            SpecializationId = 0
+        };
+    private bool flagAdd = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDoctors();
+    }
+
+    private async Task LoadDoctors()
+    {
+        try
+        {
+            _doctors = (await Api.DoctorAllAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading doctors: {ex.Message}");
+        }
+    }
+
+    private async Task SaveDoctor()
+    {
+        try
+        {
+            if (flagAdd)
+            {
+                await Api.DoctorPOSTAsync(new DoctorPostDto
+                    {
+                        Fio = currentDoctor.Fio,
+                        Passport = currentDoctor.Passport,
+                        BirthDate = currentDoctor.BirthDate,
+                        WorkExperience = currentDoctor.WorkExperience,
+                        SpecializationId = currentDoctor.SpecializationId
+                    });
+            }
+            else
+            {
+                await Api.DoctorPUTAsync(currentDoctor.Id, new DoctorPostDto
+                    {
+                        Fio = currentDoctor.Fio,
+                        Passport = currentDoctor.Passport,
+                        BirthDate = currentDoctor.BirthDate,
+                        WorkExperience = currentDoctor.WorkExperience,
+                        SpecializationId = currentDoctor.SpecializationId
+                    });
+            }
+
+            ClearForm();
+            await LoadDoctors();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error saving doctor: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteDoctor(int doctorId)
+    {
+        try
+        {
+            await Api.DoctorDELETEAsync(doctorId);
+            await LoadDoctors();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting doctor: {ex.Message}");
+        }
+    }
+
+    private async Task ShowUpdForm(int doctorId)
+    {
+        flagAdd = false;
+        try
+        {
+            var response = await Api.DoctorGETAsync(doctorId);
+            if (response != null)
+            {
+                currentDoctor = response;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading doctor details: {ex.Message}");
+        }
+    }
+
+    private void ClearForm()
+    {
+        flagAdd = true;
+        currentDoctor = new DoctorGetDto
+            {
+                Id = 0,
+                Fio = string.Empty,
+                Passport = 0,
+                BirthDate = DateTime.MinValue,
+                WorkExperience = 0,
+                SpecializationId = 0
+            };
+    }
+
+    private async Task HandleFormSubmit()
+    {
+        await SaveDoctor();
+    }
+}

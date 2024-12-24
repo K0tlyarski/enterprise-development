@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoliclinicTests", "Policlin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Policlinic.Server", "Policlinic.Server\Policlinic.Server.csproj", "{0E244154-60E6-481A-ABA2-578379065697}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Policlinic.WebApplication", "Policlinic.WebApplication\Policlinic.WebApplication.csproj", "{A51512B9-3C61-4C4A-98F4-3486E2BA514A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0E244154-60E6-481A-ABA2-578379065697}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E244154-60E6-481A-ABA2-578379065697}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E244154-60E6-481A-ABA2-578379065697}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A51512B9-3C61-4C4A-98F4-3486E2BA514A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A51512B9-3C61-4C4A-98F4-3486E2BA514A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A51512B9-3C61-4C4A-98F4-3486E2BA514A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A51512B9-3C61-4C4A-98F4-3486E2BA514A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
